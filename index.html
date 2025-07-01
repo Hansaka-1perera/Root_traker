@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sittu Badu Road – Interface Only</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    #map {
+      height: 70vh;
+      width: 100%;
+    }
+    #formContainer {
+      padding: 15px;
+      background: #f9f9f9;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 6px;
+      margin-top: 5px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <h2 style="text-align:center;">🗺️ Sittu Badu Road – Tracker (Interface Only)</h2>
+  <div id="map"></div>
+
+  <div id="formContainer">
+    <h3>Add Location Details</h3>
+    <label for="locName">Location Name/Number</label>
+    <input type="text" id="locName" placeholder="e.g. Panadura Point A">
+
+    <label for="products">Products Delivered</label>
+    <textarea id="products" rows="2" placeholder="e.g. Rice, Sugar"></textarea>
+
+    <label for="status">Status</label>
+    <select id="status">
+      <option value="Active">Active</option>
+      <option value="Inactive">Inactive</option>
+    </select>
+
+    <label for="notes">Notes</label>
+    <textarea id="notes" rows="2" placeholder="e.g. No delivery today"></textarea>
+
+    <button onclick="alert('Form submitted (offline mode only – not saved).')">Submit</button>
+  </div>
+
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+  </script>
+  <script>
+    const map = L.map('map').setView([6.712, 79.906], 15);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap',
+      maxZoom: 19,
+    }).addTo(map);
+
+    map.on('click', function (e) {
+      L.marker(e.latlng).addTo(map);
+      document.getElementById("formContainer").scrollIntoView({ behavior: "smooth" });
+    });
+  </script>
+</body>
+</html>
