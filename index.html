@@ -1,20 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Sittu Badu Road </title>
+  <title>Sittu Badu Road Tracker</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
     }
     #map {
-      height: 70vh;
+      height: 65vh;
       width: 100%;
     }
     #formContainer {
@@ -43,7 +40,7 @@
 </head>
 <body>
 
-  <h2 style="text-align:center;">🗺️ Sittu Badu Road – Tracker (Interface Only)</h2>
+  <h2 style="text-align:center;">🗺️ Sittu Badu Road Tracker</h2>
   <div id="map"></div>
 
   <div id="formContainer">
@@ -63,24 +60,79 @@
     <label for="notes">Notes</label>
     <textarea id="notes" rows="2" placeholder="e.g. No delivery today"></textarea>
 
-    <button onclick="alert('Form submitted (offline mode only – not saved).')">Submit</button>
+    <button onclick="submitData()">Submit</button>
   </div>
 
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
-  </script>
+  <!-- Leaflet -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
   <script>
+    // Your Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyAtP2s7E9N0fD6OisgtKDW9mhBdzOUzwsQ",
+      authDomain: "sittubadumap.firebaseapp.com",
+      projectId: "sittubadumap",
+      storageBucket: "sittubadumap.firebasestorage.app",
+      messagingSenderId: "76779364405",
+      appId: "1:76779364405:web:0d3f6ed346131bb5ad517c",
+      databaseURL: "https://sittubadumap-default-rtdb.firebaseio.com/"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // Leaflet map setup
     const map = L.map('map').setView([6.712, 79.906], 15);
+    let selectedLatLng = null;
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap',
-      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
     map.on('click', function (e) {
+      selectedLatLng = e.latlng;
       L.marker(e.latlng).addTo(map);
       document.getElementById("formContainer").scrollIntoView({ behavior: "smooth" });
     });
+
+    function submitData() {
+      const name = document.getElementById("locName").value;
+      const products = document.getElementById("products").value;
+      const status = document.getElementById("status").value;
+      const notes = document.getElementById("notes").value;
+
+      if (!name || !selectedLatLng) {
+        alert("Please select a location on the map and fill all required fields.");
+        return;
+      }
+
+      const data = {
+        name: name,
+        products: products,
+        status: status,
+        notes: notes,
+        lat: selectedLatLng.lat,
+        lng: selectedLatLng.lng,
+        timestamp: new Date().toISOString()
+      };
+
+      database.ref("locations").push(data)
+        .then(() => {
+          alert("✅ Data saved successfully!");
+          document.getElementById("locName").value = "";
+          document.getElementById("products").value = "";
+          document.getElementById("status").value = "Active";
+          document.getElementById("notes").value = "";
+        })
+        .catch((error) => {
+          alert("❌ Error saving data: " + error.message);
+        });
+    }
   </script>
 </body>
 </html>
